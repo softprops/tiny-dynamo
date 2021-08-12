@@ -5,10 +5,33 @@ fn get_item(db: DB) -> Result<Request, Box<dyn std::error::Error>> {
     db.get_item_req("test")
 }
 
+fn put_item(db: DB) -> Result<Request, Box<dyn std::error::Error>> {
+    db.put_item_req("test", "value")
+}
+
 fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("get_item", |b| {
         b.iter(|| {
             get_item(black_box(DB {
+                credentials: Credentials {
+                    aws_access_key_id: "test".into(),
+                    aws_secret_access_key: "test".into(),
+                },
+                table_info: TableInfo {
+                    key_name: "key".into(),
+                    value_name: "value".into(),
+                    table_name: "test".into(),
+                    region: "us-east-1".into(),
+                    endpoint: Some("http://localhost:8000".into()),
+                },
+                requests: Box::new(Static(200, "".into())),
+            }))
+        })
+    });
+
+    c.bench_function("put_item", |b| {
+        b.iter(|| {
+            put_item(black_box(DB {
                 credentials: Credentials {
                     aws_access_key_id: "test".into(),
                     aws_secret_access_key: "test".into(),
