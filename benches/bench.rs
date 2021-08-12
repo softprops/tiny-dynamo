@@ -6,7 +6,7 @@ fn get_item(db: DB) -> Result<Request, Box<dyn std::error::Error>> {
 }
 
 fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("fib 20", |b| {
+    c.bench_function("get_item", |b| {
         b.iter(|| {
             get_item(black_box(DB {
                 credentials: Credentials {
