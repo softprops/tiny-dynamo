@@ -363,7 +363,7 @@ impl DB {
             .parse()?,
         );
         headers.append("Content-Length", content_length.to_string().parse()?);
-        //headers.append("X-Amz-Content-Sha256", sha.parse()?);
+        headers.append("X-Amz-Content-Sha256", sha.parse()?);
 
         Ok(unsigned)
     }
