@@ -112,7 +112,7 @@ impl DB {
         }
     }
 
-    fn put_item_req(
+    pub fn put_item_req(
         &self,
         key: impl AsRef<str>,
         value: impl AsRef<str>,
@@ -153,7 +153,7 @@ impl DB {
         )
     }
 
-    fn get_item_req(
+    pub fn get_item_req(
         &self,
         key: impl AsRef<str>,
     ) -> Result<Request, Box<dyn Error>> {
@@ -370,6 +370,18 @@ impl DB {
         headers.append("X-Amz-Content-Sha256", sha.parse()?);
 
         Ok(unsigned)
+    }
+}
+
+pub struct Static(pub u16, pub String);
+
+impl Requests for Static {
+    fn send(
+        &self,
+        _: Request,
+    ) -> Result<(u16, String), Box<dyn Error>> {
+        let Static(status, body) = self;
+        Ok((*status, body.clone()))
     }
 }
 
