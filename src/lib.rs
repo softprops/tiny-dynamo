@@ -1,6 +1,10 @@
 use chrono::{DateTime, Utc};
 use hmac::{Hmac, Mac, NewMac};
-use http::{Request as HttpRequest, Uri};
+use http::{
+    header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE, HOST},
+    method::Method,
+    Request as HttpRequest, Uri,
+};
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -134,10 +138,10 @@ impl DB {
             })
             .parse()?;
         self.sign(
-            req.method("POST")
+            req.method(Method::POST)
                 .uri(&uri)
-                .header("Host", uri.authority().expect("expected host").as_str())
-                .header("Content-Type", "application/x-amz-json-1.0")
+                .header(HOST, uri.authority().expect("expected host").as_str())
+                .header(CONTENT_TYPE, "application/x-amz-json-1.0")
                 .header("X-Amz-Target", "DynamoDB_20120810.PutItem")
                 .body(serde_json::to_vec(&PutItemInput {
                     table_name: table_name.into(),
@@ -174,10 +178,10 @@ impl DB {
             })
             .parse()?;
         self.sign(
-            req.method("POST")
+            req.method(Method::POST)
                 .uri(&uri)
-                .header("Host", uri.authority().expect("expected host").as_str())
-                .header("Content-Type", "application/x-amz-json-1.0")
+                .header(HOST, uri.authority().expect("expected host").as_str())
+                .header(CONTENT_TYPE, "application/x-amz-json-1.0")
                 .header("X-Amz-Target", "DynamoDB_20120810.GetItem")
                 .body(serde_json::to_vec(&GetItemInput {
                     table_name: table_name.into(),
@@ -352,7 +356,7 @@ impl DB {
         let content_length = unsigned.body().len();
         let headers = unsigned.headers_mut();
         headers.append(
-            "Authorization",
+            AUTHORIZATION,
             authorization_header(
                 &self.credentials.aws_access_key_id,
                 &Utc::now(),
@@ -362,7 +366,7 @@ impl DB {
             )
             .parse()?,
         );
-        headers.append("Content-Length", content_length.to_string().parse()?);
+        headers.append(CONTENT_LENGTH, content_length.to_string().parse()?);
         headers.append("X-Amz-Content-Sha256", sha.parse()?);
 
         Ok(unsigned)
