@@ -1,0 +1,16 @@
+[package]
+name = "tiny-dynamo"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde_json = "1"
+serde = { version = "1", features = ["derive"] }
+reqwest = { version = "0.11.4", features = ["blocking", "json"] }
+http = "0.2"
+sha2 = "0.9"
+hmac = "0.10"
+chrono = "0.4"
+hex = "0.4"

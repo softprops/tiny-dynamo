@@ -1,0 +1,5 @@
+# https://github.com/rust-lang/rustfmt/blob/master/Configurations.md#fn_args_layout
+fn_args_layout = "Vertical"
+merge_imports = true
+# https://github.com/rust-lang/rustfmt/blob/master/Configurations.md#imports_granularity
+#imports_granularity = "Crate"
