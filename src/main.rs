@@ -6,10 +6,10 @@ fn main() -> Result<(), Box<dyn Error>> {
     // AWS_ACCESS_KEY_ID=foo AWS_SECRET_ACCESS_KEY=foo aws dynamodb create-table --endpoint-url http://localhost:8000 --table-name test --key-schema AttributeName=key,KeyType=HASH --attribute-definitions AttributeName=key,AttributeType=S --provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1
     // https://www.rahulpnath.com/blog/aws_dynamodb_local/
     let db = DB {
-        credentials: Credentials {
-            aws_access_key_id: env::var("AWS_ACCESS_KEY_ID")?,
-            aws_secret_access_key: env::var("AWS_SECRET_ACCESS_KEY")?,
-        },
+        credentials: Credentials::new(
+            env::var("AWS_ACCESS_KEY_ID")?,
+            env::var("AWS_SECRET_ACCESS_KEY")?,
+        ),
         table_info: TableInfo {
             key_name: "key".into(),
             value_name: "value".into(),

@@ -13,10 +13,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("get_item", |b| {
         b.iter(|| {
             get_item(black_box(DB {
-                credentials: Credentials {
-                    aws_access_key_id: "test".into(),
-                    aws_secret_access_key: "test".into(),
-                },
+                credentials: Credentials::new("test", "test"),
                 table_info: TableInfo {
                     key_name: "key".into(),
                     value_name: "value".into(),
@@ -32,10 +29,7 @@ fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("put_item", |b| {
         b.iter(|| {
             put_item(black_box(DB {
-                credentials: Credentials {
-                    aws_access_key_id: "test".into(),
-                    aws_secret_access_key: "test".into(),
-                },
+                credentials: Credentials::new("test", "test"),
                 table_info: TableInfo {
                     key_name: "key".into(),
                     value_name: "value".into(),

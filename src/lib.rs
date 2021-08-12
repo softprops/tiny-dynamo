@@ -17,8 +17,20 @@ const LONG_DATETIME: &str = "%Y%m%dT%H%M%SZ";
 pub type Request = HttpRequest<Vec<u8>>;
 
 pub struct Credentials {
-    pub aws_access_key_id: String,
-    pub aws_secret_access_key: String,
+    aws_access_key_id: String,
+    aws_secret_access_key: String,
+}
+
+impl Credentials {
+    pub fn new(
+        aws_access_key_id: impl AsRef<str>,
+        aws_secret_access_key: impl AsRef<str>,
+    ) -> Self {
+        Self {
+            aws_access_key_id: aws_access_key_id.as_ref().to_owned(),
+            aws_secret_access_key: aws_secret_access_key.as_ref().to_owned(),
+        }
+    }
 }
 
 pub struct TableInfo {
