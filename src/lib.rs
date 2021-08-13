@@ -1,3 +1,4 @@
+pub mod region;
 use chrono::{DateTime, Utc};
 use hmac::{Hmac, Mac, NewMac};
 use http::{
@@ -5,6 +6,7 @@ use http::{
     method::Method,
     Request as HttpRequest, Uri,
 };
+use region::Region;
 use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
@@ -37,7 +39,7 @@ pub struct TableInfo {
     pub table_name: String,
     pub key_name: String,
     pub value_name: String,
-    pub region: String,
+    pub region: Region,
     pub endpoint: Option<String>,
 }
 
@@ -141,13 +143,7 @@ impl DB {
         } = &self.table_info;
         let uri: Uri = endpoint
             .clone()
-            .unwrap_or_else(|| {
-                format!(
-                    "https://dynamodb.{region}.{domain}",
-                    region = region,
-                    domain = "amazonaws.com"
-                )
-            })
+            .unwrap_or_else(|| region.endpoint().into())
             .parse()?;
         self.sign(
             req.method(Method::POST)
@@ -181,13 +177,7 @@ impl DB {
         } = &self.table_info;
         let uri: Uri = endpoint
             .clone()
-            .unwrap_or_else(|| {
-                format!(
-                    "https://dynamodb.{region}.{domain}",
-                    region = region,
-                    domain = "amazonaws.com"
-                )
-            })
+            .unwrap_or_else(|| region.endpoint().into())
             .parse()?;
         self.sign(
             req.method(Method::POST)
@@ -355,11 +345,11 @@ impl DB {
             )
         }
 
-        let string_to_sign = string_to_sign(&now, &self.table_info.region, &canonical_request);
+        let string_to_sign = string_to_sign(&now, &self.table_info.region.id(), &canonical_request);
         let mut hmac = HmacSha256::new_varkey(&signing_key(
             &now,
             &self.credentials.aws_secret_access_key,
-            &self.table_info.region,
+            &self.table_info.region.id(),
             "dynamodb",
         )?)
         .map_err(|e| StrErr(e.to_string()))?;
@@ -372,7 +362,7 @@ impl DB {
             authorization_header(
                 &self.credentials.aws_access_key_id,
                 &Utc::now(),
-                &self.table_info.region,
+                &self.table_info.region.id(),
                 &signed_header_string(headers),
                 &signature,
             )

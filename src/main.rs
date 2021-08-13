@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             key_name: "key".into(),
             value_name: "value".into(),
             table_name: "test".into(),
-            region: "us-east-1".into(),
+            region: "us-east-1".parse()?,
             endpoint: Some("http://localhost:8000".into()),
         },
         requests: Box::new(Reqwest::new()),
