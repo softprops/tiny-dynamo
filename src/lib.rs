@@ -1,3 +1,6 @@
+//! # tiny dynamo
+//!
+//!
 pub mod region;
 use chrono::{DateTime, Utc};
 use hmac::{Hmac, Mac, NewMac};
@@ -18,6 +21,7 @@ const LONG_DATETIME: &str = "%Y%m%dT%H%M%SZ";
 
 pub type Request = HttpRequest<Vec<u8>>;
 
+/// A set of aws credentials to authenticate requests
 pub struct Credentials {
     aws_access_key_id: String,
     aws_secret_access_key: String,
@@ -35,6 +39,7 @@ impl Credentials {
     }
 }
 
+/// Information about your target DynamoDB table
 pub struct TableInfo {
     pub table_name: String,
     pub key_name: String,
@@ -43,6 +48,7 @@ pub struct TableInfo {
     pub endpoint: Option<String>,
 }
 
+/// A trait to the implemented for sending requests, often your "IO" layer
 pub trait Requests {
     fn send(
         &self,
@@ -98,6 +104,18 @@ pub struct DB {
 }
 
 impl DB {
+    pub fn new(
+        credentials: Credentials,
+        table_info: TableInfo,
+        requests: impl Requests + 'static,
+    ) -> Self {
+        Self {
+            credentials,
+            table_info,
+            requests: Box::new(requests),
+        }
+    }
+
     pub fn get(
         &self,
         key: impl AsRef<str>,
