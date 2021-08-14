@@ -160,8 +160,8 @@ impl DB {
             ..
         } = &self.table_info;
         let uri: Uri = endpoint
-            .clone()
-            .unwrap_or_else(|| region.endpoint().into())
+            .as_deref()
+            .unwrap_or_else(|| region.endpoint())
             .parse()?;
         self.sign(
             req.method(Method::POST)
@@ -194,8 +194,8 @@ impl DB {
             ..
         } = &self.table_info;
         let uri: Uri = endpoint
-            .clone()
-            .unwrap_or_else(|| region.endpoint().into())
+            .as_deref()
+            .unwrap_or_else(|| region.endpoint())
             .parse()?;
         self.sign(
             req.method(Method::POST)

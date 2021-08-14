@@ -14,7 +14,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         .lines()
         .map(|id| Region {
             variant: id
-                .split("-")
+                .split('-')
                 .map(|word| {
                     let mut chars = word.chars();
                     if let Some(a) = chars.next() {
