@@ -220,8 +220,6 @@ impl DB {
         &self,
         mut unsigned: Request,
     ) -> Result<Request, Box<dyn Error>> {
-        // https://github.com/durch/rust-s3/blob/ae166bad53c25c88b9d3784fb816783142400567/s3/src/request_trait.rs#L286
-
         fn hmac(
             key: &[u8],
             data: &[u8],
@@ -231,7 +229,7 @@ impl DB {
             Ok(mac.finalize().into_bytes().to_vec())
         }
 
-        let sha = {
+        let body_digest = {
             let mut sha = Sha256::default();
             sha.update(unsigned.body());
             hex::encode(sha.finalize().as_slice())
@@ -307,47 +305,26 @@ impl DB {
             keyvalues.join("\n")
         }
 
-        fn canonical_uri_string(uri: &http::Uri) -> String {
-            // decode `Url`'s percent-encoding and then reencode it
-            // according to AWS's rules
-            //let decoded = percent_encoding::percent_decode_str(uri.path()).decode_utf8_lossy();
-            //uri_encode(&decoded, false)
-            uri.path().to_string()
-        }
-
-        fn canonical_query_string(_uri: &http::Uri) -> String {
-            // let mut keyvalues = uri
-            //     .query()
-            //     .map(|(key, value)| uri_encode(&key, true) + "=" + &uri_encode(&value, true))
-            //     .collect::<Vec<String>>();
-            // keyvalues.sort();
-            // keyvalues.join("&")
-            "".to_string()
-        }
-
         fn canonical_request(
             method: &str,
-            url: &http::Uri,
             headers: &http::HeaderMap,
-            body_sha256: &str,
+            body_digest: &str,
         ) -> String {
+            // note: all dynamodb uris are requests to / with no query string so theres no need
+            // to derive those from the request
             format!(
-                "{method}\n{uri}\n{query_string}\n{headers}\n\n{signed_headers}\n{body_sha256}",
+                "{method}\n/\n\n{headers}\n\n{signed_headers}\n{body_digest}",
                 method = method,
-                uri = canonical_uri_string(url),
-                query_string = canonical_query_string(url),
                 headers = canonical_header_string(headers),
                 signed_headers = signed_header_string(headers),
-                body_sha256 = body_sha256
+                body_digest = body_digest
             )
         }
 
-        // verb url headers, sha256
         let canonical_request = canonical_request(
             unsigned.method().as_str(),
-            unsigned.uri(),
             unsigned.headers(),
-            sha.as_str(),
+            body_digest.as_str(),
         );
 
         fn authorization_header(
@@ -390,7 +367,7 @@ impl DB {
             .parse()?,
         );
         headers.append(CONTENT_LENGTH, content_length.to_string().parse()?);
-        headers.append("X-Amz-Content-Sha256", sha.parse()?);
+        headers.append("X-Amz-Content-Sha256", body_digest.parse()?);
 
         Ok(unsigned)
     }
