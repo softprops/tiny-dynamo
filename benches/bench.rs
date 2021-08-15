@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use tiny_dynamo::{Credentials, Request, Static, TableInfo, DB};
+use tiny_dynamo::{Const, Credentials, Request, TableInfo, DB};
 
 fn get_item(db: DB) -> Result<Request, Box<dyn std::error::Error>> {
     db.get_item_req("test")
@@ -21,7 +21,7 @@ fn criterion_benchmark(c: &mut Criterion) {
                     region: "us-east-1".parse()?,
                     endpoint: Some("http://localhost:8000".into()),
                 },
-                Static(200, "".into()),
+                Const(200, "".into()),
             )))
         })
     });
@@ -37,7 +37,7 @@ fn criterion_benchmark(c: &mut Criterion) {
                     region: "us-east-1".parse()?,
                     endpoint: Some("http://localhost:8000".into()),
                 },
-                Static(200, "".into()),
+                Const(200, "".into()),
             )))
         })
     });

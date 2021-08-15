@@ -373,14 +373,14 @@ impl DB {
     }
 }
 
-pub struct Static(pub u16, pub String);
+pub struct Const(pub u16, pub String);
 
-impl Requests for Static {
+impl Requests for Const {
     fn send(
         &self,
         _: Request,
     ) -> Result<(u16, String), Box<dyn Error>> {
-        let Static(status, body) = self;
+        let Const(status, body) = self;
         Ok((*status, body.clone()))
     }
 }
