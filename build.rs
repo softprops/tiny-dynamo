@@ -1,7 +1,4 @@
-use std::env;
-use std::error::Error;
-use std::fs;
-use std::path::Path;
+use std::{env, error::Error, fs, path::Path};
 
 struct Region {
     variant: String,

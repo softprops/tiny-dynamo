@@ -2,6 +2,8 @@
 //!
 //!
 pub mod region;
+pub mod reqwest_requests;
+
 use chrono::{DateTime, Utc};
 use hmac::{Hmac, Mac, NewMac};
 use http::{
@@ -10,7 +12,6 @@ use http::{
     Request as HttpRequest, Uri,
 };
 use region::Region;
-use reqwest::blocking::Client;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{collections::HashMap, error::Error, fmt::Display, iter::FromIterator};
@@ -170,7 +171,7 @@ impl DB {
                 .header(CONTENT_TYPE, "application/x-amz-json-1.0")
                 .header("X-Amz-Target", "DynamoDB_20120810.PutItem")
                 .body(serde_json::to_vec(&PutItemInput {
-                    table_name: table_name,
+                    table_name,
                     item: HashMap::from_iter([
                         (key_name.as_str(), Attr::S(key.as_ref().to_owned())),
                         (value_name.as_ref(), Attr::S(value.as_ref().to_owned())),
@@ -204,7 +205,7 @@ impl DB {
                 .header(CONTENT_TYPE, "application/x-amz-json-1.0")
                 .header("X-Amz-Target", "DynamoDB_20120810.GetItem")
                 .body(serde_json::to_vec(&GetItemInput {
-                    table_name: table_name,
+                    table_name,
                     key: HashMap::from_iter([(
                         key_name.as_str(),
                         Attr::S(key.as_ref().to_owned()),
@@ -270,15 +271,15 @@ impl DB {
             region: &str,
             service: &str,
         ) -> Result<Vec<u8>, Box<dyn Error>> {
-            Ok([region.as_bytes(), service.as_bytes(), b"aws4_request"]
+            [region.as_bytes(), service.as_bytes(), b"aws4_request"]
                 .iter()
                 .try_fold::<_, _, Result<_, Box<dyn Error>>>(
                     hmac(
                         format!("AWS4{}", secret_key).as_bytes(),
                         datetime.format(SHORT_DATE).to_string().as_bytes(),
                     )?,
-                    |res, next| Ok(hmac(&res, next)?),
-                )?)
+                    |res, next| hmac(&res, next),
+                )
         }
 
         fn scope_string(
@@ -382,42 +383,6 @@ impl Requests for Const {
     ) -> Result<(u16, String), Box<dyn Error>> {
         let Const(status, body) = self;
         Ok((*status, body.clone()))
-    }
-}
-
-pub struct Reqwest {
-    client: Client,
-}
-
-impl Default for Reqwest {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
-impl Reqwest {
-    pub fn new() -> Self {
-        Reqwest {
-            client: Client::new(),
-        }
-    }
-}
-
-impl Requests for Reqwest {
-    fn send(
-        &self,
-        signed: Request,
-    ) -> Result<(u16, String), Box<dyn Error>> {
-        let resp = self
-            .client
-            .post(signed.uri().to_string())
-            .headers(signed.headers().clone())
-            .body(signed.body().clone())
-            .send()?;
-        let status = resp.status().as_u16();
-        let body = resp.text()?;
-        //println!("\nresp {} {}", status, body);
-        Ok((status, body))
     }
 }
 
