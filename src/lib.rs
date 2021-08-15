@@ -63,18 +63,18 @@ enum Attr {
 
 #[derive(Serialize)]
 #[serde(rename_all = "PascalCase")]
-struct PutItemInput {
-    table_name: String,
-    item: HashMap<String, Attr>,
+struct PutItemInput<'a> {
+    table_name: &'a str,
+    item: HashMap<&'a str, Attr>,
 }
 
 #[derive(Serialize)]
 #[serde(rename_all = "PascalCase")]
-struct GetItemInput {
-    table_name: String,
-    key: HashMap<String, Attr>,
-    projection_expression: String,
-    expression_attribute_names: HashMap<String, String>,
+struct GetItemInput<'a> {
+    table_name: &'a str,
+    key: HashMap<&'a str, Attr>,
+    projection_expression: &'a str,
+    expression_attribute_names: HashMap<&'a str, &'a str>,
 }
 
 #[derive(Deserialize)]
@@ -170,10 +170,10 @@ impl DB {
                 .header(CONTENT_TYPE, "application/x-amz-json-1.0")
                 .header("X-Amz-Target", "DynamoDB_20120810.PutItem")
                 .body(serde_json::to_vec(&PutItemInput {
-                    table_name: table_name.into(),
+                    table_name: table_name,
                     item: HashMap::from_iter([
-                        (key_name.into(), Attr::S(key.as_ref().to_owned())),
-                        (value_name.into(), Attr::S(value.as_ref().to_owned())),
+                        (key_name.as_str(), Attr::S(key.as_ref().to_owned())),
+                        (value_name.as_ref(), Attr::S(value.as_ref().to_owned())),
                     ]),
                 })?)?,
         )
@@ -204,14 +204,14 @@ impl DB {
                 .header(CONTENT_TYPE, "application/x-amz-json-1.0")
                 .header("X-Amz-Target", "DynamoDB_20120810.GetItem")
                 .body(serde_json::to_vec(&GetItemInput {
-                    table_name: table_name.into(),
-                    key: HashMap::from_iter([(key_name.into(), Attr::S(key.as_ref().to_owned()))]),
-                    // we use #v because https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ReservedWords.html
-                    projection_expression: "#v".into(),
-                    expression_attribute_names: HashMap::from_iter([(
-                        "#v".into(),
-                        value_name.into(),
+                    table_name: table_name,
+                    key: HashMap::from_iter([(
+                        key_name.as_str(),
+                        Attr::S(key.as_ref().to_owned()),
                     )]),
+                    // we use #v because https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/ReservedWords.html
+                    projection_expression: "#v",
+                    expression_attribute_names: HashMap::from_iter([("#v", value_name.as_ref())]),
                 })?)?,
         )
     }
