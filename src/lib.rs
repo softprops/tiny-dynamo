@@ -222,6 +222,15 @@ impl DB {
     ) -> Result<Request, Box<dyn Error>> {
         // https://github.com/durch/rust-s3/blob/ae166bad53c25c88b9d3784fb816783142400567/s3/src/request_trait.rs#L286
 
+        fn hmac(
+            key: &[u8],
+            data: &[u8],
+        ) -> Result<Vec<u8>, Box<dyn Error>> {
+            let mut mac = HmacSha256::new_varkey(&key).map_err(|e| StrErr(e.to_string()))?;
+            mac.update(&data);
+            Ok(mac.finalize().into_bytes().to_vec())
+        }
+
         let sha = {
             let mut sha = Sha256::default();
             sha.update(unsigned.body());
@@ -263,21 +272,15 @@ impl DB {
             region: &str,
             service: &str,
         ) -> Result<Vec<u8>, Box<dyn Error>> {
-            let mut date_hmac = HmacSha256::new_varkey(format!("AWS4{}", secret_key).as_bytes())
-                .map_err(|e| StrErr(e.to_string()))?;
-            date_hmac.update(datetime.format(SHORT_DATE).to_string().as_bytes());
-
-            Ok([region, service, "aws4_request"]
+            Ok([region.as_bytes(), service.as_bytes(), b"aws4_request"]
                 .iter()
-                .try_fold::<_, _, Result<_, Box<dyn Error>>>(date_hmac, |res, next| {
-                    let mut next_mac = HmacSha256::new_varkey(&res.finalize().into_bytes())
-                        .map_err(|e| StrErr(e.to_string()))?;
-                    next_mac.update(next.to_string().as_bytes());
-                    Ok(next_mac)
-                })?
-                .finalize()
-                .into_bytes()
-                .to_vec())
+                .try_fold::<_, _, Result<_, Box<dyn Error>>>(
+                    hmac(
+                        format!("AWS4{}", secret_key).as_bytes(),
+                        datetime.format(SHORT_DATE).to_string().as_bytes(),
+                    )?,
+                    |res, next| Ok(hmac(&res, next)?),
+                )?)
         }
 
         fn scope_string(
@@ -364,15 +367,15 @@ impl DB {
         }
 
         let string_to_sign = string_to_sign(&now, &self.table_info.region.id(), &canonical_request);
-        let mut hmac = HmacSha256::new_varkey(&signing_key(
-            &now,
-            &self.credentials.aws_secret_access_key,
-            &self.table_info.region.id(),
-            "dynamodb",
-        )?)
-        .map_err(|e| StrErr(e.to_string()))?;
-        hmac.update(string_to_sign.as_bytes());
-        let signature = hex::encode(hmac.finalize().into_bytes());
+        let signature = hex::encode(hmac(
+            &signing_key(
+                &now,
+                &self.credentials.aws_secret_access_key,
+                &self.table_info.region.id(),
+                "dynamodb",
+            )?,
+            string_to_sign.as_bytes(),
+        )?);
         let content_length = unsigned.body().len();
         let headers = unsigned.headers_mut();
         headers.append(
