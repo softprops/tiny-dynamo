@@ -1,6 +1,4 @@
-//! # tiny dynamo
-//!
-//!
+#![doc = include_str!("../README.md")]
 #[cfg(feature = "fastly")]
 pub mod fastly_requests;
 mod region;
@@ -23,10 +21,10 @@ type HmacSha256 = Hmac<Sha256>;
 const SHORT_DATE: &str = "%Y%m%d";
 const LONG_DATETIME: &str = "%Y%m%dT%H%M%SZ";
 
-/// A type alias for http::Request with a Vec<u8> body
+/// A type alias for `http::RequestVec<u8>`
 pub type Request = HttpRequest<Vec<u8>>;
 
-/// A set of aws credentials to authenticate requests
+/// A set of AWS credentials to authenticate requests with
 pub struct Credentials {
     aws_access_key_id: String,
     aws_secret_access_key: String,
@@ -44,13 +42,20 @@ impl Credentials {
     }
 }
 
-/// Information about your target DynamoDB table
+/// Information about your target AWS DynamoDB table
 #[non_exhaustive]
 pub struct TableInfo {
+    /// The name of your DynamoDB
     pub table_name: String,
+    /// The name of the attribute that will store your key
     pub key_name: String,
+    /// The name of the attribute that will store your value
     pub value_name: String,
+    /// The AWS region the table is hosted in.
+    ///
+    /// When `endpoint` is defined, the value of this field is is somewhat arbitrary
     pub region: Region,
+    /// An Optional, uri to address the DynamoDB api, often times just for dynamodb local
     pub endpoint: Option<String>,
 }
 
@@ -72,8 +77,10 @@ impl TableInfo {
     }
 }
 
-/// A trait to the implemented for sending requests, often your "IO" layer
+/// A trait to implement the behavior for sending requests, often your "IO" layer
 pub trait Requests {
+    /// Accepts a signed `http::Request<Vec<u8>>` and returns a tuple
+    /// representing a response's HTTP status code and body
     fn send(
         &self,
         signed: Request,
@@ -123,9 +130,9 @@ impl Error for StrErr {}
 
 /// The central client interface applications will work with
 pub struct DB {
-    pub credentials: Credentials,
-    pub table_info: TableInfo,
-    pub requests: Box<dyn Requests>,
+    credentials: Credentials,
+    table_info: TableInfo,
+    requests: Box<dyn Requests>,
 }
 
 impl DB {
@@ -141,6 +148,7 @@ impl DB {
         }
     }
 
+    /// Gets a value by its key
     pub fn get(
         &self,
         key: impl AsRef<str>,
@@ -158,6 +166,7 @@ impl DB {
         }
     }
 
+    /// Sets a value for a given key
     pub fn set(
         &self,
         key: impl AsRef<str>,
@@ -169,6 +178,7 @@ impl DB {
         }
     }
 
+    #[doc(hidden)]
     pub fn put_item_req(
         &self,
         key: impl AsRef<str>,
@@ -204,6 +214,7 @@ impl DB {
         )
     }
 
+    #[doc(hidden)]
     pub fn get_item_req(
         &self,
         key: impl AsRef<str>,
