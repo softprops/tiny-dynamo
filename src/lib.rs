@@ -54,6 +54,24 @@ pub struct TableInfo {
     pub endpoint: Option<String>,
 }
 
+impl TableInfo {
+    pub fn new(
+        table_name: impl AsRef<str>,
+        key_name: impl AsRef<str>,
+        value_name: impl AsRef<str>,
+        region: Region,
+        endpoint: impl Into<Option<String>>,
+    ) -> Self {
+        Self {
+            table_name: table_name.as_ref().into(),
+            key_name: key_name.as_ref().into(),
+            value_name: value_name.as_ref().into(),
+            region,
+            endpoint: endpoint.into(),
+        }
+    }
+}
+
 /// A trait to the implemented for sending requests, often your "IO" layer
 pub trait Requests {
     fn send(

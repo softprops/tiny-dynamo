@@ -30,13 +30,13 @@ fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| {
             put_item(black_box(DB::new(
                 Credentials::new("test", "test"),
-                TableInfo {
-                    key_name: "key".into(),
-                    value_name: "value".into(),
-                    table_name: "test".into(),
-                    region: "us-east-1".parse()?,
-                    endpoint: Some("http://localhost:8000".into()),
-                },
+                TableInfo::new(
+                    "key",
+                    "value",
+                    "test",
+                    "us-east-1".parse()?,
+                    Some("http://localhost:8000".into()),
+                ),
                 Const(200, "".into()),
             )))
         })

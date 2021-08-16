@@ -10,13 +10,13 @@ fn main() -> Result<(), Box<dyn Error>> {
             env::var("AWS_ACCESS_KEY_ID")?,
             env::var("AWS_SECRET_ACCESS_KEY")?,
         ),
-        TableInfo {
-            key_name: "key".into(),
-            value_name: "value".into(),
-            table_name: "test".into(),
-            region: "us-east-1".parse()?,
-            endpoint: Some("http://localhost:8000".into()),
-        },
+        TableInfo::new(
+            "key",
+            "value",
+            "test",
+            "us-east-1".parse()?,
+            Some("http://localhost:8000".into()),
+        ),
         Reqwest::new(),
     );
     println!("{:#?}", db.set("foo", "bar")?);
