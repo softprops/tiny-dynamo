@@ -231,7 +231,7 @@ impl DB {
             key: &[u8],
             data: &[u8],
         ) -> Result<Vec<u8>, Box<dyn Error>> {
-            let mut mac = HmacSha256::new_varkey(key).map_err(|e| StrErr(e.to_string()))?;
+            let mut mac = HmacSha256::new_from_slice(key).map_err(|e| StrErr(e.to_string()))?;
             mac.update(data);
             Ok(mac.finalize().into_bytes().to_vec())
         }

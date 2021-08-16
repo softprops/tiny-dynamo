@@ -11,7 +11,7 @@ serde = { version = "1", features = ["derive"] }
 reqwest = { version = "0.11", features = ["blocking", "json"], optional = true }
 http = "0.2"
 sha2 = "0.9"
-hmac = "0.10"
+hmac = "0.11"
 chrono = "0.4"
 hex = "0.4"
 fastly = { version = "0.7", optional = true }
