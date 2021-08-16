@@ -1,7 +1,10 @@
 //! # tiny dynamo
 //!
 //!
+#[cfg(feature = "fastly")]
+pub mod fastly_requests;
 pub mod region;
+#[cfg(feature = "reqwest")]
 pub mod reqwest_requests;
 
 use chrono::{DateTime, Utc};

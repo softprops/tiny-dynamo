@@ -31,9 +31,6 @@ impl Requests for Reqwest {
             .headers(signed.headers().clone())
             .body(signed.body().clone())
             .send()?;
-        let status = resp.status().as_u16();
-        let body = resp.text()?;
-        //println!("\nresp {} {}", status, body);
-        Ok((status, body))
+        Ok((resp.status().as_u16(), resp.text()?))
     }
 }
