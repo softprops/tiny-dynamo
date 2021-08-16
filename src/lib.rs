@@ -225,8 +225,8 @@ impl DB {
             key: &[u8],
             data: &[u8],
         ) -> Result<Vec<u8>, Box<dyn Error>> {
-            let mut mac = HmacSha256::new_varkey(&key).map_err(|e| StrErr(e.to_string()))?;
-            mac.update(&data);
+            let mut mac = HmacSha256::new_varkey(key).map_err(|e| StrErr(e.to_string()))?;
+            mac.update(data);
             Ok(mac.finalize().into_bytes().to_vec())
         }
 
@@ -344,12 +344,12 @@ impl DB {
             )
         }
 
-        let string_to_sign = string_to_sign(&now, &self.table_info.region.id(), &canonical_request);
+        let string_to_sign = string_to_sign(&now, self.table_info.region.id(), &canonical_request);
         let signature = hex::encode(hmac(
             &signing_key(
                 &now,
                 &self.credentials.aws_secret_access_key,
-                &self.table_info.region.id(),
+                self.table_info.region.id(),
                 "dynamodb",
             )?,
             string_to_sign.as_bytes(),
@@ -361,7 +361,7 @@ impl DB {
             authorization_header(
                 &self.credentials.aws_access_key_id,
                 &Utc::now(),
-                &self.table_info.region.id(),
+                self.table_info.region.id(),
                 &signed_header_string(headers),
                 &signature,
             )
