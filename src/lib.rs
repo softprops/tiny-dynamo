@@ -407,15 +407,14 @@ mod tests {
     #[test]
     fn put_item_input_serilizes_as_expected() -> Result<(), Box<dyn Error>> {
         // assert_eq!(
-        //     serde_json::to_string(&GetItemInput {
-        //         table_name: "test-table".into(),
-        //         key: HashMap::from_iter([
-        //             ("key-name".into(), Attr::S("key-value".into())),
-        //             ("value-name".into(), Attr::S("value-value".into()))
+        //     serde_json::to_string(&PutItemInput {
+        //         table_name: "test-table",
+        //         item: HashMap::from_iter([
+        //             ("key-name", Attr::S("key-value".into())),
+        //             ("value-name", Attr::S("value".into())),
         //         ]),
-        //         projection_expression: "value-name".into(),
         //     })?,
-        //     r#"{"TableName":"test-table","Item":{"key-name":{"S":"key-value"},"value-name":{"S":"value-value"}}"#
+        //     r##"{"TableName":"test-table","Item":{"key-name":{"S":"key-value"},"value-name":{"S":"value"}}}"##
         // );
         Ok(())
     }
