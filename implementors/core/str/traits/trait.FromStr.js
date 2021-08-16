@@ -1,3 +1,3 @@
 (function() {var implementors = {};
-implementors["tiny_dynamo"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.54.0/core/str/traits/trait.FromStr.html\" title=\"trait core::str::traits::FromStr\">FromStr</a> for <a class=\"enum\" href=\"tiny_dynamo/region/enum.Region.html\" title=\"enum tiny_dynamo::region::Region\">Region</a>","synthetic":false,"types":["tiny_dynamo::region::Region"]}];
+implementors["tiny_dynamo"] = [{"text":"impl <a class=\"trait\" href=\"https://doc.rust-lang.org/1.54.0/core/str/traits/trait.FromStr.html\" title=\"trait core::str::traits::FromStr\">FromStr</a> for <a class=\"enum\" href=\"tiny_dynamo/enum.Region.html\" title=\"enum tiny_dynamo::Region\">Region</a>","synthetic":false,"types":["tiny_dynamo::region::Region"]}];
 if (window.register_implementors) {window.register_implementors(implementors);} else {window.pending_implementors = implementors;}})()

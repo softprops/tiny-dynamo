@@ -114,7 +114,13 @@
 <span id="112">112</span>
 <span id="113">113</span>
 <span id="114">114</span>
+<span id="115">115</span>
+<span id="116">116</span>
+<span id="117">117</span>
+<span id="118">118</span>
 </pre><pre class="rust">
+<span class="doccomment">/// A list of AWS Regions supported by DynamoDB</span>
+<span class="attribute">#[<span class="ident">non_exhaustive</span>]</span>
 <span class="kw">pub</span> <span class="kw">enum</span> <span class="ident">Region</span> {
   <span class="ident">AfSouth1</span>,
   <span class="ident">ApEast1</span>,
@@ -142,6 +148,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">Region</span> {
+  <span class="doccomment">/// Short region identifier</span>
   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">id</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
     <span class="kw">match</span> <span class="self">self</span> {
       <span class="ident">Region::AfSouth1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;af-south-1&quot;</span>,
@@ -169,6 +176,7 @@
       <span class="ident">Region::UsWest2</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;us-west-2&quot;</span>,
     }
   }
+  <span class="doccomment">/// region specific dynamodb endpoint</span>
   <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">endpoint</span>(<span class="kw-2">&amp;</span><span class="self">self</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="kw-2">&amp;</span><span class="ident">str</span> {
     <span class="kw">match</span> <span class="self">self</span> {
       <span class="ident">Region::AfSouth1</span> <span class="op">=</span><span class="op">&gt;</span> <span class="string">&quot;dynamodb.af-south-1.amazonaws.com&quot;</span>,
