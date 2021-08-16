@@ -7,7 +7,7 @@
 </h1>
 
 <p align="center">
-   A smaller, simpler, key-value focused interface for AWS DynamoDB
+   A tiny, simpler, key-value focused interface for AWS DynamoDB
 </p>
 
 <div align="center">
