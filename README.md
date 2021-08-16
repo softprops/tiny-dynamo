@@ -1,9 +1,13 @@
+<div align="center">
+  📦 🤏
+</div>
+
 <h1 align="center">
   tiny dynamo
 </h1>
 
 <p align="center">
-   A smaller api for AWS DynamoDB
+   A smaller, simpler, key-value focused interface for AWS DynamoDB
 </p>
 
 <div align="center">
