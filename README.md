@@ -24,7 +24,7 @@ Tiny Dynamodb takes a [sans I/O](https://sans-io.readthedocs.io/) library approa
 
 #### Reqwest
 
-the `reqwest` feature provides a `reqwest_requests::Reqwest` backend for sending requests. Currently using a blocking click.
+the `reqwest` feature provides a `reqwest_requests::Reqwest` backend for sending requests. Currently using a blocking client. An async feature is planned for the future
 
 ```toml
 [dependencies]
