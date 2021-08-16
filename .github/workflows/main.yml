@@ -5,14 +5,14 @@ on:
     paths-ignore:
       - "*.md"
     branches:
-      - master
+      - main
     tags:
       - "**"
   pull_request:
     paths-ignore:
       - "*.md"
     branches:
-      - master
+      - main
 
 env:
   CARGO_TERM_COLOR: always
@@ -67,7 +67,7 @@ jobs:
         run: cargo test
 
   publish-docs:
-    if: github.ref == 'refs/heads/master'
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     needs: [test]
     steps:
