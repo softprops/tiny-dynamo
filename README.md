@@ -20,7 +20,7 @@
 
 ### Sans I/O
 
-Tiny Dynamodb takes a [sans I/O] library approach. By default it defines a `Requests` trait which allows for any I/O library to implement how requests are transfered over the wire by provides none without an implicit feature toggled on
+Tiny Dynamodb takes a [sans I/O](https://sans-io.readthedocs.io/) library approach. By default it defines a `Requests` trait which allows for any I/O library to implement how requests are transfered over the wire by provides none without an implicit feature toggled on
 
 #### Reqwest
 
