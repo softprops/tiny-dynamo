@@ -275,7 +275,7 @@ impl DB {
                 .iter()
                 .try_fold::<_, _, Result<_, Box<dyn Error>>>(
                     hmac(
-                        format!("AWS4{}", secret_key).as_bytes(),
+                        &[b"AWS4", secret_key.as_bytes()].concat(),
                         datetime.format(SHORT_DATE).to_string().as_bytes(),
                     )?,
                     |res, next| hmac(&res, next),
