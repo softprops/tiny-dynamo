@@ -40,9 +40,9 @@ Tiny Dynamo avoids packing carry-on luggage for anything you don't explicitly ne
 
 ### Simpler Data Modeling
 
-A common laborious activity with DynamoDB applications is to figure our your application's data model first then translate that to a DynamoDB key space design and item attributes. This is expected for applications that require more advanced access patterns. For simple key value applications, this is just tax. Tiny DynamoDB assumes key value data model. How you serilize your value is up to you.
+A common laborious activity with DynamoDB applications is to figure our your application's data model first then translate that to a DynamoDBee key space design and item attributes. This is expected for applications that require more advanced access patterns. For simple key value applications, this is just tax. Tiny DynamoDB assumes key value data model. How you serilize your value is up to you.
 
-### Just the plane
+### Just the data plane
 
 You can think of the DynamoDB API in terms of two planes: The data plane, where you all of your time in 99% of application cases, and the control plane, an api for provisioning the resources that will store your data. Combining these makes its surface area arbitrarily larger that it needs to be. Tiny Dynamo focuses on exposing just the data plane to retain a smaller surface area to learn.
 
