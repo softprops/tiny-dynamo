@@ -21,8 +21,7 @@ impl Requests for Fastly {
     ) -> Result<(u16, String), Box<dyn Error>> {
         let (parts, body) = signed.into_parts();
         let fastly_body: Body = body.into();
-        let fastly_compat = http::Request::from_parts(parts, fastly_body);
-        let fr: FastlyRequest = fastly_compat.into();
+        let fr: FastlyRequest = http::Request::from_parts(parts, fastly_body).into();
         let resp = fr.send(&self.backend)?;
         Ok((resp.get_status().as_u16(), resp.into_body_str()))
     }
