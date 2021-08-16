@@ -20,7 +20,7 @@
 
 > Amazon DynamoDB is a key-value and document database that delivers single-digit millisecond performance at any scale.
 
-This quote comes directly from the [Amazon DynamoDB docs](https://aws.amazon.com/dynamodb/). This has some implications that are less than idea for simple key value applications. It can be overly complicated and sometimes daunting an to say the least.
+This quote comes directly from the [Amazon DynamoDB docs](https://aws.amazon.com/dynamodb/). This has some implications that are less than ideal for very simple key value applications. It can be overly complicated and sometimes daunting an to say the least.
 
 Tiny Dynamo aims to leverge the useful parts but exposing a much simpler get/set api you might expect from a key value interface.
 
