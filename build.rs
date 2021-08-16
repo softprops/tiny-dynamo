@@ -31,7 +31,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let dest_path = Path::new(&env::var("OUT_DIR")?).join("region.rs");
 
     // the enum
-    let mut buf = "pub enum Region {\n".to_string();
+    let mut buf =
+        "/// A list of AWS Regions supported by DynamoDB\n#[non_exhaustive]\npub enum Region {\n"
+            .to_string();
     for region in &regions {
         buf.push_str("  ");
         buf.push_str(&region.variant);
@@ -42,6 +44,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     // the impl
     buf.push_str("\nimpl Region {\n");
 
+    buf.push_str("  /// Short region identifier\n");
     buf.push_str("  pub fn id(&self) -> &str {\n");
     buf.push_str("    match self {\n");
     for region in &regions {
@@ -53,6 +56,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     }
     buf.push_str("    }\n  }\n");
 
+    buf.push_str("  /// region specific dynamodb endpoint\n");
     buf.push_str("  pub fn endpoint(&self) -> &str {\n");
     buf.push_str("    match self {\n");
     for region in &regions {

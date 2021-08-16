@@ -3,7 +3,7 @@
 //!
 #[cfg(feature = "fastly")]
 pub mod fastly_requests;
-pub mod region;
+mod region;
 #[cfg(feature = "reqwest")]
 pub mod reqwest_requests;
 
@@ -14,7 +14,7 @@ use http::{
     method::Method,
     Request as HttpRequest, Uri,
 };
-use region::Region;
+pub use region::Region;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{collections::HashMap, error::Error, fmt::Display, iter::FromIterator};
@@ -23,6 +23,7 @@ type HmacSha256 = Hmac<Sha256>;
 const SHORT_DATE: &str = "%Y%m%d";
 const LONG_DATETIME: &str = "%Y%m%dT%H%M%SZ";
 
+/// A type alias for http::Request with a Vec<u8> body
 pub type Request = HttpRequest<Vec<u8>>;
 
 /// A set of aws credentials to authenticate requests
@@ -44,6 +45,7 @@ impl Credentials {
 }
 
 /// Information about your target DynamoDB table
+#[non_exhaustive]
 pub struct TableInfo {
     pub table_name: String,
     pub key_name: String,
@@ -101,6 +103,7 @@ impl Display for StrErr {
 
 impl Error for StrErr {}
 
+/// The central client interface applications will work with
 pub struct DB {
     pub credentials: Credentials,
     pub table_info: TableInfo,
@@ -377,6 +380,7 @@ impl DB {
     }
 }
 
+/// Provides a `Requests` implementation for a constantized response.
 pub struct Const(pub u16, pub String);
 
 impl Requests for Const {
