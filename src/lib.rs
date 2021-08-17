@@ -8,6 +8,7 @@ pub mod reqwest_requests;
 use chrono::{DateTime, Utc};
 use hmac::{Hmac, Mac, NewMac};
 use http::{
+    header::HeaderName,
     header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE, HOST},
     method::Method,
     Request as HttpRequest, Uri,
@@ -16,13 +17,13 @@ pub use region::Region;
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use std::{collections::HashMap, error::Error, fmt::Display, iter::FromIterator};
-type HmacSha256 = Hmac<Sha256>;
 
 const SHORT_DATE: &str = "%Y%m%d";
 const LONG_DATETIME: &str = "%Y%m%dT%H%M%SZ";
 
 /// A type alias for `http::RequestVec<u8>`
 pub type Request = HttpRequest<Vec<u8>>;
+type HmacSha256 = Hmac<Sha256>;
 
 /// A set of AWS credentials to authenticate requests with
 pub struct Credentials {
@@ -389,21 +390,26 @@ impl DB {
             )?,
             string_to_sign.as_bytes(),
         )?);
+        let headers_string = signed_header_string(unsigned.headers());
         let content_length = unsigned.body().len();
-        let headers = unsigned.headers_mut();
-        headers.append(
-            AUTHORIZATION,
-            authorization_header(
-                &self.credentials.aws_access_key_id,
-                &Utc::now(),
-                self.table_info.region.id(),
-                &signed_header_string(headers),
-                &signature,
-            )
-            .parse()?,
-        );
-        headers.append(CONTENT_LENGTH, content_length.to_string().parse()?);
-        headers.append("X-Amz-Content-Sha256", body_digest.parse()?);
+        unsigned.headers_mut().extend([
+            (
+                AUTHORIZATION,
+                authorization_header(
+                    &self.credentials.aws_access_key_id,
+                    &Utc::now(),
+                    self.table_info.region.id(),
+                    &headers_string,
+                    &signature,
+                )
+                .parse()?,
+            ),
+            (CONTENT_LENGTH, content_length.to_string().parse()?),
+            (
+                HeaderName::from_static("X-Amz-Content-Sha256"),
+                body_digest.parse()?,
+            ),
+        ]);
 
         Ok(unsigned)
     }
