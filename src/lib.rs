@@ -8,8 +8,7 @@ pub mod reqwest_requests;
 use chrono::{DateTime, Utc};
 use hmac::{Hmac, Mac, NewMac};
 use http::{
-    header::HeaderName,
-    header::{AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE, HOST},
+    header::{HeaderName, AUTHORIZATION, CONTENT_LENGTH, CONTENT_TYPE, HOST},
     method::Method,
     Request as HttpRequest, Uri,
 };
@@ -20,6 +19,7 @@ use std::{collections::HashMap, error::Error, fmt::Display, iter::FromIterator};
 
 const SHORT_DATE: &str = "%Y%m%d";
 const LONG_DATETIME: &str = "%Y%m%dT%H%M%SZ";
+const X_AMZ_CONTENT_SHA256: &[u8] = b"X-Amz-Content-Sha256";
 
 /// A type alias for `http::RequestVec<u8>`
 pub type Request = HttpRequest<Vec<u8>>;
@@ -305,9 +305,8 @@ impl DB {
             datetime: &DateTime<Utc>,
             secret_key: &str,
             region: &str,
-            service: &str,
         ) -> Result<Vec<u8>, Box<dyn Error>> {
-            [region.as_bytes(), service.as_bytes(), b"aws4_request"]
+            [region.as_bytes(), b"dynamodb", b"aws4_request"]
                 .iter()
                 .try_fold::<_, _, Result<_, Box<dyn Error>>>(
                     hmac(
@@ -337,7 +336,7 @@ impl DB {
                     // accept them anyway)
                     key.as_str().to_lowercase() + ":" + value.to_str().unwrap().trim()
                 })
-                .collect::<Vec<String>>();
+                .collect::<Vec<_>>();
             keyvalues.sort();
             keyvalues.join("\n")
         }
@@ -386,7 +385,6 @@ impl DB {
                 &now,
                 &self.credentials.aws_secret_access_key,
                 self.table_info.region.id(),
-                "dynamodb",
             )?,
             string_to_sign.as_bytes(),
         )?);
@@ -406,7 +404,7 @@ impl DB {
             ),
             (CONTENT_LENGTH, content_length.to_string().parse()?),
             (
-                HeaderName::from_static("X-Amz-Content-Sha256"),
+                HeaderName::from_bytes(X_AMZ_CONTENT_SHA256)?,
                 body_digest.parse()?,
             ),
         ]);
