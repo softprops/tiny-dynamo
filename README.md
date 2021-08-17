@@ -24,14 +24,6 @@ This quote comes directly from the [Amazon DynamoDB docs](https://aws.amazon.com
 
 Tiny Dynamo aims to leverge the useful parts by exposing a much simpler get/set api you might expect from a key-value interface.
 
-```rust
-// storing a value
-db.set("foo", "bar")?;
-
-// geting a value.
-db.get("foo")?;
-```
-
 ## Features
 
 ### Tiny
