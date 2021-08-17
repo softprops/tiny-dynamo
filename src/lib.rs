@@ -161,6 +161,7 @@ pub struct DB {
 }
 
 impl DB {
+    /// Returns a new instance of a DB
     pub fn new(
         credentials: Credentials,
         table_info: TableInfo,
