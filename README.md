@@ -20,9 +20,9 @@
 
 > Amazon DynamoDB is a key-value and document database that delivers single-digit millisecond performance at any scale.
 
-This quote comes directly from the [Amazon DynamoDB docs](https://aws.amazon.com/dynamodb/). This has some implications that are less than ideal for very simple key value applications. It can be overly complicated and sometimes daunting an to say the least.
+This quote comes directly from the [Amazon DynamoDB docs](https://aws.amazon.com/dynamodb/). This has some implications that are less than ideal for very simple key-value applications. It can be overly complicated and sometimes daunting for the uninitiated to say the least.
 
-Tiny Dynamo aims to leverge the useful parts but exposing a much simpler get/set api you might expect from a key value interface.
+Tiny Dynamo aims to leverge the useful parts by exposing a much simpler get/set api you might expect from a key-value interface.
 
 ```rust
 // storing a value
@@ -36,15 +36,15 @@ db.get("foo")?;
 
 ### Tiny
 
-Tiny Dynamo avoids packing carry-on luggage for anything you don't explicitly need for a simple key value application. This includes an entire sdk and transient line of dependencies. This allows it to fit more easily into smaller spaces and to deliver on Rust's zero cost promise of not paying for what you don't use.
+Tiny Dynamo avoids packing carry-on luggage for anything you don't explicitly need for a simple key-value application. This includes an entire sdk and transient line of dependencies. This allows it to fit more easily into smaller spaces and to deliver on Rust's zero cost promise of not paying for what you don't use.
 
 ### Simpler Data Modeling
 
-A common laborious activity with DynamoDB applications is to figure our your application's data model first then translate that to a DynamoDBee key space design and item attributes. This is expected for applications that require more advanced access patterns. For simple key value applications, this is just tax. Tiny DynamoDB assumes key value data model. How you serilize your value is up to you.
+A common laborious activity with DynamoDB applications is to figure our your application's data model first then translate that to a DynamoDB key space design and item attributes. This is expected for applications that require more advanced access patterns. For simple key value applications, this is just tax. Tiny DynamoDB assumes key value data model. How you serilize your value is up to you.
 
 ### Just the data plane
 
-You can think of the DynamoDB API in terms of two planes: The data plane, where you all of your time in 99% of application cases, and the control plane, an api for provisioning the resources that will store your data. Combining these makes its surface area arbitrarily larger that it needs to be. Tiny Dynamo focuses on exposing just the data plane to retain a smaller surface area to learn.
+You can think of the DynamoDB API in terms of two planes: The data plane, where you typically spend all your time in 99% of application cases, and the control plane, an api for provisioning the resources that will store your data. Combining these makes its surface area arbitrarily larger that it needs to be. Tiny Dynamo focuses on exposing just the data plane to retain a smaller surface area to learn.
 
 ### Sans I/O
 
@@ -52,7 +52,7 @@ Tiny Dynamo takes a [sans I/O](https://sans-io.readthedocs.io/) library approach
 
 #### Reqwest
 
-the `reqwest` feature provides a `reqwest_requests::Reqwest` backend for sending requests. Currently using a blocking client. An async feature is planned for the future
+the `reqwest` feature provides a `reqwest_requests::Reqwest` backend for sending requests, currently using a blocking client. An async feature is planned for the future
 
 ```toml
 [dependencies]
