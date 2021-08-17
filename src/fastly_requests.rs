@@ -2,11 +2,14 @@ use crate::{Request, Requests};
 use fastly::{Body, Request as FastlyRequest};
 use std::error::Error;
 
+/// Provides a `Requests` impl suitable for Fastly's Compute@Edge WASM
+/// runtime
 pub struct Fastly {
     backend: String,
 }
 
 impl Fastly {
+    /// Crates
     pub fn new(backend: impl AsRef<str>) -> Self {
         Self {
             backend: backend.as_ref().to_string(),

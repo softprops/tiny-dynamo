@@ -22,7 +22,40 @@
 
 This quote comes directly from the [Amazon DynamoDB docs](https://aws.amazon.com/dynamodb/). This has some implications that are less than ideal for very simple key-value applications. It can be overly complicated and sometimes daunting for the uninitiated to say the least.
 
-Tiny Dynamo aims to leverge the useful parts by exposing a much simpler get/set api you might expect from a key-value interface.
+Tiny Dynamo aims to leverge the useful parts by exposing a much simpler get/set API you might expect from a key-value interface.
+
+### Usage
+
+```rust ,no_run
+use std::{env, error::Error};
+use tiny_dynamo::{reqwest_requests::Reqwest, Credentials, TableInfo, DB};
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let db = DB::new(
+        Credentials::new(
+            env::var("AWS_ACCESS_KEY_ID")?,
+            env::var("AWS_SECRET_ACCESS_KEY")?,
+        ),
+        TableInfo::new(
+            "key-attr-name",
+            "value-attr-name",
+            "table-name",
+            "us-east-1".parse()?,
+            None
+        ),
+        Reqwest::new(),
+    );
+
+    println!("{:#?}", db.set("foo", "bar")?);
+    println!("{:#?}", db.get("foo")?);
+
+    Ok(())
+}
+```
+
+A few notable differences when comparing to traditional DynamoDB clients is that this client assumes a single table, a very common case, so you configure your client with that table name so you don't need to redundantly provided it with each request.
+
+You will also find the interface is reduced to `get(key)` `set(key,value)`. This is intentional as this client is primarily focused on being a better fit for simple key-value applications.
 
 ## Features
 
@@ -32,11 +65,11 @@ Tiny Dynamo avoids packing carry-on luggage for anything you don't explicitly ne
 
 ### Simpler Data Modeling
 
-A common laborious activity with DynamoDB applications is to figure our your application's data model first then translate that to a DynamoDB key space design and item attributes. This is expected for applications that require more advanced access patterns. For simple key value applications, this is just tax. Tiny DynamoDB assumes key value data model. How you serilize your value is up to you.
+A common laborious activity with DynamoDB applications figuring our your application's data model first and then translating that to a DynamoDB's key space design and catalog of item attribute types. This is fine and expected for applications that require more advanced access patterns. For simple key-value applications, this is just tax. Tiny DynamoDB assumes a key-value data model. How you serilize your value is up to you.
 
 ### Just the data plane
 
-You can think of the DynamoDB API in terms of two planes: The data plane, where you typically spend all your time in 99% of application cases, and the control plane, an api for provisioning the resources that will store your data. Combining these makes its surface area arbitrarily larger that it needs to be. Tiny Dynamo focuses on exposing just the data plane to retain a smaller surface area to learn.
+You can think of the DynamoDB API in terms of two planes: The data plane, where you typically spend all your time in 99% of application cases, and the control plane, an API for provisioning the resources that will store your data. Combining these makes its surface area arbitrarily larger that it needs to be. Tiny Dynamo focuses on exposing just the data plane to retain a smaller surface area to learn.
 
 ### Sans I/O
 
@@ -58,6 +91,25 @@ The `fastly` feature provides a `fastly_requests::Fastly` backend for sending re
 ```toml
 [dependencies]
 tiny_dynamo = { version = "0.1", features = ["fastly"]}
+```
+
+### BYOIO
+
+If you would like to bring your own IO implementation you can define an implementation for a custom type
+
+```rust
+use tiny_dynamo::{Request, Requests};
+use std::error::Error;
+
+struct CustomIO;
+
+impl Requests for CustomIO {
+  fn send(&self, signed: Request) -> Result<(u16, String), Box<dyn Error>> {
+    Ok(
+      (200,"...".into())
+    )
+  }
+}
 ```
 
 Doug Tangren (softprops) 2021

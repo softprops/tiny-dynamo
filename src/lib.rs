@@ -130,6 +130,30 @@ impl Display for StrErr {
 impl Error for StrErr {}
 
 /// The central client interface applications will work with
+///
+/// # Example
+///
+/// ```rust ,no_run
+/// # use std::{env, error::Error};
+/// # use tiny_dynamo::{reqwest_requests::Reqwest, Credentials, TableInfo, DB};
+/// # fn main() -> Result<(), Box<dyn Error>> {
+///let db = DB::new(
+///    Credentials::new(
+///        env::var("AWS_ACCESS_KEY_ID")?,
+///        env::var("AWS_SECRET_ACCESS_KEY")?,
+///    ),
+///    TableInfo::new(
+///        "key-attr-name",
+///        "value-attr-name",
+///        "table-name",
+///        "us-east-1".parse()?,
+///        None
+///    ),
+///    Reqwest::new(),
+///);
+/// # Ok(())
+/// # }
+/// ```
 pub struct DB {
     credentials: Credentials,
     table_info: TableInfo,
