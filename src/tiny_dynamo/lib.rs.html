@@ -485,6 +485,7 @@
 <span id="483">483</span>
 <span id="484">484</span>
 <span id="485">485</span>
+<span id="486">486</span>
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">doc</span> <span class="op">=</span> <span class="macro">include_str!</span>(<span class="string">&quot;../README.md&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;fastly&quot;</span>)]</span>
@@ -649,6 +650,7 @@
 }
 
 <span class="kw">impl</span> <span class="ident">DB</span> {
+    <span class="doccomment">/// Returns a new instance of a DB</span>
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">credentials</span>: <span class="ident">Credentials</span>,
         <span class="ident">table_info</span>: <span class="ident">TableInfo</span>,
