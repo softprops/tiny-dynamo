@@ -20,9 +20,9 @@
 
 > Amazon DynamoDB is a key-value and document database that delivers single-digit millisecond performance at any scale.
 
-This quote comes directly from the [Amazon DynamoDB docs](https://aws.amazon.com/dynamodb/). This has some implications that are less than ideal for very simple key-value applications. It can be overly complicated and sometimes daunting for the uninitiated to say the least.
+This quote comes directly from the [Amazon DynamoDB docs](https://aws.amazon.com/dynamodb/). This has some implications on its client APIs that are less than ideal for very simple key-value applications. These interfaces can be overly complicated and sometimes daunting for the uninitiated to say the least.
 
-Tiny Dynamo aims to leverge the useful parts by exposing a much simpler get/set API you might expect from a key-value interface.
+Tiny Dynamo aims to leverge the useful parts by exposing a much smaller and simpler get/set API you might expect from a key-value interface.
 
 ### Usage
 
@@ -53,7 +53,7 @@ fn main() -> Result<(), Box<dyn Error>> {
 }
 ```
 
-A few notable differences when comparing to traditional DynamoDB clients is that this client assumes a single table, a very common case, so you configure your client with that table name so you don't need to redundantly provided it with each request.
+A few notable differences when comparing Tiny Dynamo to traditional DynamoDB clients is that this client assumes a single table, a very common case, so you configure your client with that table name so you don't need to redundantly provide it with each request.
 
 You will also find the interface is reduced to `get(key)` `set(key,value)`. This is intentional as this client is primarily focused on being a better fit for simple key-value applications.
 
@@ -61,11 +61,11 @@ You will also find the interface is reduced to `get(key)` `set(key,value)`. This
 
 ### Tiny
 
-Tiny Dynamo avoids packing carry-on luggage for anything you don't explicitly need for a simple key-value application. This includes an entire sdk and transient line of dependencies. This allows it to fit more easily into smaller spaces and to deliver on Rust's zero cost promise of not paying for what you don't use.
+Tiny Dynamo avoids packing carry-on luggage for anything you don't explicitly need for a simple key-value application. This includes an entire sdk and a transient line of dependencies. This allows it to fit more easily into smaller spaces and to deliver on Rust's zero cost promise of not paying for what you don't use.
 
 ### Simpler Data Modeling
 
-A common laborious activity with DynamoDB applications figuring our your application's data model first and then translating that to a DynamoDB's key space design and catalog of item attribute types. This is fine and expected for applications that require more advanced access patterns. For simple key-value applications, this is just tax. Tiny DynamoDB assumes a key-value data model. How you serilize your value is up to you.
+A common laborious activity with DynamoDB based applications figuring our your application's data model first and then translating that to a DynamoDB's key space design and catalog of item attribute types. This is fine and expected for applications that require more advanced access patterns. For simple key-value applications, this is just tax. Tiny DynamoDB assumes a key-value data model. How you serilize your value is up to you.
 
 ### Just the data plane
 
