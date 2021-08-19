@@ -22,7 +22,7 @@
 
 This quote comes directly from the [Amazon DynamoDB docs](https://aws.amazon.com/dynamodb/). This has some implications on its client APIs that are less than ideal for very simple key-value applications. These interfaces can be overly complicated and sometimes daunting for the uninitiated to say the least.
 
-Tiny Dynamo aims to leverge the useful parts by exposing a much smaller and simpler get/set API you might expect from a key-value interface.
+Tiny Dynamo aims to leverge the useful parts, the performance and scalability, but expose a much smaller and simpler get/set API you might expect from a key-value interface.
 
 ### Usage
 
