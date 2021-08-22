@@ -489,10 +489,10 @@
 </pre><pre class="rust">
 <span class="attribute">#![<span class="ident">doc</span> <span class="op">=</span> <span class="macro">include_str!</span>(<span class="string">&quot;../README.md&quot;</span>)]</span>
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;fastly&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">fastly_requests</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">fastly_transport</span>;
 <span class="kw">mod</span> <span class="ident">region</span>;
 <span class="attribute">#[<span class="ident">cfg</span>(<span class="ident">feature</span> <span class="op">=</span> <span class="string">&quot;reqwest&quot;</span>)]</span>
-<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">reqwest_requests</span>;
+<span class="kw">pub</span> <span class="kw">mod</span> <span class="ident">reqwest_transport</span>;
 
 <span class="kw">use</span> <span class="ident">chrono</span>::{<span class="ident">DateTime</span>, <span class="ident">Utc</span>};
 <span class="kw">use</span> <span class="ident">hmac</span>::{<span class="ident">Hmac</span>, <span class="ident">Mac</span>, <span class="ident">NewMac</span>};
@@ -568,7 +568,7 @@
 }
 
 <span class="doccomment">/// A trait to implement the behavior for sending requests, often your &quot;IO&quot; layer</span>
-<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Requests</span> {
+<span class="kw">pub</span> <span class="kw">trait</span> <span class="ident">Transport</span> {
     <span class="doccomment">/// Accepts a signed `http::Request&lt;Vec&lt;u8&gt;&gt;` and returns a tuple</span>
     <span class="doccomment">/// representing a response&#39;s HTTP status code and body</span>
     <span class="kw">fn</span> <span class="ident">send</span>(
@@ -624,7 +624,7 @@
 <span class="doccomment">///</span>
 <span class="doccomment">/// ```rust ,no_run</span>
 <span class="doccomment">/// # use std::{env, error::Error};</span>
-<span class="doccomment">/// # use tiny_dynamo::{reqwest_requests::Reqwest, Credentials, TableInfo, DB};</span>
+<span class="doccomment">/// # use tiny_dynamo::{reqwest_transport::Reqwest, Credentials, TableInfo, DB};</span>
 <span class="doccomment">/// # fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt; {</span>
 <span class="doccomment">///let db = DB::new(</span>
 <span class="doccomment">///    Credentials::new(</span>
@@ -646,7 +646,7 @@
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">DB</span> {
     <span class="ident">credentials</span>: <span class="ident">Credentials</span>,
     <span class="ident">table_info</span>: <span class="ident">TableInfo</span>,
-    <span class="ident">requests</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Requests</span><span class="op">&gt;</span>,
+    <span class="ident">transport</span>: <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Transport</span><span class="op">&gt;</span>,
 }
 
 <span class="kw">impl</span> <span class="ident">DB</span> {
@@ -654,12 +654,12 @@
     <span class="kw">pub</span> <span class="kw">fn</span> <span class="ident">new</span>(
         <span class="ident">credentials</span>: <span class="ident">Credentials</span>,
         <span class="ident">table_info</span>: <span class="ident">TableInfo</span>,
-        <span class="ident">requests</span>: <span class="kw">impl</span> <span class="ident">Requests</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
+        <span class="ident">transport</span>: <span class="kw">impl</span> <span class="ident">Transport</span> <span class="op">+</span> <span class="lifetime">&#39;static</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="self">Self</span> {
         <span class="self">Self</span> {
             <span class="ident">credentials</span>,
             <span class="ident">table_info</span>,
-            <span class="ident">requests</span>: <span class="ident">Box::new</span>(<span class="ident">requests</span>),
+            <span class="ident">transport</span>: <span class="ident">Box::new</span>(<span class="ident">transport</span>),
         }
     }
 
@@ -669,7 +669,7 @@
         <span class="ident">key</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span><span class="prelude-ty">Option</span><span class="op">&lt;</span><span class="ident">String</span><span class="op">&gt;</span>, <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
         <span class="kw">let</span> <span class="ident">TableInfo</span> { <span class="ident">value_name</span>, .. } <span class="op">=</span> <span class="kw-2">&amp;</span><span class="self">self</span>.<span class="ident">table_info</span>;
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">requests</span>.<span class="ident">send</span>(<span class="self">self</span>.<span class="ident">get_item_req</span>(<span class="ident">key</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">transport</span>.<span class="ident">send</span>(<span class="self">self</span>.<span class="ident">get_item_req</span>(<span class="ident">key</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span> {
             (<span class="number">200</span>, <span class="ident">body</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(<span class="ident">serde_json::from_str</span>::<span class="op">&lt;</span><span class="ident">GetItemOutput</span><span class="op">&gt;</span>(<span class="kw-2">&amp;</span><span class="ident">body</span>)<span class="question-mark">?</span>
                 .<span class="ident">item</span>
                 .<span class="ident">get</span>(<span class="ident">value_name</span>)
@@ -687,7 +687,7 @@
         <span class="ident">key</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
         <span class="ident">value</span>: <span class="kw">impl</span> <span class="ident">AsRef</span><span class="op">&lt;</span><span class="ident">str</span><span class="op">&gt;</span>,
     ) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
-        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">requests</span>.<span class="ident">send</span>(<span class="self">self</span>.<span class="ident">put_item_req</span>(<span class="ident">key</span>, <span class="ident">value</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span> {
+        <span class="kw">match</span> <span class="self">self</span>.<span class="ident">transport</span>.<span class="ident">send</span>(<span class="self">self</span>.<span class="ident">put_item_req</span>(<span class="ident">key</span>, <span class="ident">value</span>)<span class="question-mark">?</span>)<span class="question-mark">?</span> {
             (<span class="number">200</span>, <span class="kw">_</span>) <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()),
             <span class="kw">_</span> <span class="op">=</span><span class="op">&gt;</span> <span class="prelude-val">Ok</span>(()), <span class="comment">// fixme: communicate error</span>
         }
@@ -927,10 +927,10 @@
     }
 }
 
-<span class="doccomment">/// Provides a `Requests` implementation for a constantized response.</span>
+<span class="doccomment">/// Provides a `Transport` implementation for a constantized response.</span>
 <span class="kw">pub</span> <span class="kw">struct</span> <span class="ident">Const</span>(<span class="kw">pub</span> <span class="ident">u16</span>, <span class="kw">pub</span> <span class="ident">String</span>);
 
-<span class="kw">impl</span> <span class="ident">Requests</span> <span class="kw">for</span> <span class="ident">Const</span> {
+<span class="kw">impl</span> <span class="ident">Transport</span> <span class="kw">for</span> <span class="ident">Const</span> {
     <span class="kw">fn</span> <span class="ident">send</span>(
         <span class="kw-2">&amp;</span><span class="self">self</span>,
         <span class="kw">_</span>: <span class="ident">Request</span>,

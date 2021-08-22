@@ -18,12 +18,12 @@
 <blockquote>
 <p>Amazon DynamoDB is a key-value and document database that delivers single-digit millisecond performance at any scale.</p>
 </blockquote>
-<p>This quote comes directly from the <a href="https://aws.amazon.com/dynamodb/">Amazon DynamoDB docs</a>. This has some implications that are less than ideal for very simple key-value applications. It can be overly complicated and sometimes daunting for the uninitiated to say the least.</p>
-<p>Tiny Dynamo aims to leverge the useful parts by exposing a much simpler get/set API you might expect from a key-value interface.</p>
+<p>This quote comes directly from the <a href="https://aws.amazon.com/dynamodb/">Amazon DynamoDB docs</a>. This combinaton has some implications on its client APIs that are less than ideal for very simple key-value applications. These interfaces can be overly complicated and sometimes daunting for the uninitiated to say the least.</p>
+<p>Tiny Dynamo aims to leverge the useful parts of DynamoDB, the performance and scalability, but expose a much smaller and simpler API that you might expect from a key-value database.</p>
 <h3 id="usage" class="section-header"><a href="#usage">Usage</a></h3>
 <div class="example-wrap"><pre class="rust rust-example-rendered">
 <span class="kw">use</span> <span class="ident">std</span>::{<span class="ident">env</span>, <span class="ident">error::Error</span>};
-<span class="kw">use</span> <span class="ident">tiny_dynamo</span>::{<span class="ident">reqwest_requests::Reqwest</span>, <span class="ident">Credentials</span>, <span class="ident">TableInfo</span>, <span class="ident">DB</span>};
+<span class="kw">use</span> <span class="ident">tiny_dynamo</span>::{<span class="ident">reqwest_transport::Reqwest</span>, <span class="ident">Credentials</span>, <span class="ident">TableInfo</span>, <span class="ident">DB</span>};
 
 <span class="kw">fn</span> <span class="ident">main</span>() <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="kw">let</span> <span class="ident">db</span> <span class="op">=</span> <span class="ident">DB::new</span>(
@@ -46,23 +46,23 @@
 
     <span class="prelude-val">Ok</span>(())
 }</pre></div>
-<p>A few notable differences when comparing to traditional DynamoDB clients is that this client assumes a single table, a very common case, so you configure your client with that table name so you don’t need to redundantly provided it with each request.</p>
-<p>You will also find the interface is reduced to <code>get(key)</code> <code>set(key,value)</code>. This is intentional as this client is primarily focused on being a better fit for simple key-value applications.</p>
+<p>A few notable differences when comparing Tiny Dynamo to traditional DynamoDB clients is that this client assumes a single table, a very common case for most DynamodbDB applications, so you configure your client with that table name so you don’t need to redundantly provide it with each request.</p>
+<p>You will also find the interface is reduced to <code>get(key)</code> <code>set(key,value)</code>. This is intentional as this client is primarily focused on being a more comfortable fit for simple key-value applications.</p>
 <h2 id="features" class="section-header"><a href="#features">Features</a></h2><h3 id="tiny" class="section-header"><a href="#tiny">Tiny</a></h3>
-<p>Tiny Dynamo avoids packing carry-on luggage for anything you don’t explicitly need for a simple key-value application. This includes an entire sdk and transient line of dependencies. This allows it to fit more easily into smaller spaces and to deliver on Rust’s zero cost promise of not paying for what you don’t use.</p>
+<p>Tiny Dynamo avoids packing carry-on luggage for anything you don’t explicitly need for a simple key-value application. This includes an entire sdk and a transient line of dependencies. This allows it to fit more easily into smaller spaces and to deliver on Rust’s zero cost promise of not paying for what you don’t use.</p>
 <h3 id="simpler-data-modeling" class="section-header"><a href="#simpler-data-modeling">Simpler Data Modeling</a></h3>
-<p>A common laborious activity with DynamoDB applications figuring our your application’s data model first and then translating that to a DynamoDB’s key space design and catalog of item attribute types. This is fine and expected for applications that require more advanced access patterns. For simple key-value applications, this is just tax. Tiny DynamoDB assumes a key-value data model. How you serilize your value is up to you.</p>
+<p>A common laborious activity with DynamoDB based applications figuring our your application’s data model first and then translating that to a DynamoDB’s key space design and catalog of item attribute types. This is fine and expected for applications that require more advanced query access patterns. For simple key-value applications, this is just tax. Tiny DynamoDB assumes a key-value data model.</p>
 <h3 id="just-the-data-plane" class="section-header"><a href="#just-the-data-plane">Just the data plane</a></h3>
-<p>You can think of the DynamoDB API in terms of two planes: The data plane, where you typically spend all your time in 99% of application cases, and the control plane, an API for provisioning the resources that will store your data. Combining these makes its surface area arbitrarily larger that it needs to be. Tiny Dynamo focuses on exposing just the data plane to retain a smaller surface area to learn.</p>
+<p>You can think of the DynamoDB API in terms of two planes: The <em>data</em> plane*cation cases, and the *control* plane, a set of APIs for provisioning the resources that will store your data. Combining these makes its surface area arbitrarily larger that it needs to be. Tiny Dynamo focuses on exposing just the data plane to retain a smaller surface area to learn.</p>
 <h3 id="sans-io" class="section-header"><a href="#sans-io">Sans I/O</a></h3>
-<p>Tiny Dynamo takes a <a href="https://sans-io.readthedocs.io/">sans I/O</a> library approach. By default it defines a <code>Requests</code> trait which allows for any I/O library to implement how requests are transfered over the wire by provides none without an implicit feature toggled on</p>
+<p>Tiny Dynamo takes a <a href="https://sans-io.readthedocs.io/">sans I/O</a> library approach. It defines a <code>Transport</code> trait which allows for any I/O library to implement how requests are transfered over the wire by provides none without an implicit feature toggled on</p>
 <h4 id="reqwest" class="section-header"><a href="#reqwest">Reqwest</a></h4>
-<p>the <code>reqwest</code> feature provides a <code>reqwest_requests::Reqwest</code> backend for sending requests, currently using a blocking client. An async feature is planned for the future</p>
+<p>the <code>reqwest</code> feature provides a <code>reqwest_transport::Reqwest</code> backend for sending requests, currently using a blocking client. An async feature is planned for the future</p>
 <pre><code class="language-toml">[dependencies]
 tiny_dynamo = { version = &quot;0.1&quot;, features = [&quot;reqwest&quot;]}
 </code></pre>
 <h4 id="fastly" class="section-header"><a href="#fastly">Fastly</a></h4>
-<p>The <code>fastly</code> feature provides a <code>fastly_requests::Fastly</code> backend for sending requests suitable for Fastlys Compute@Edge platform</p>
+<p>The <code>fastly</code> feature provides a <code>fastly_transport::Fastly</code> backend for sending requests suitable for Fastlys Compute@Edge platform</p>
 <pre><code class="language-toml">[dependencies]
 tiny_dynamo = { version = &quot;0.1&quot;, features = [&quot;fastly&quot;]}
 </code></pre>
@@ -70,12 +70,12 @@ tiny_dynamo = { version = &quot;0.1&quot;, features = [&quot;fastly&quot;]}
 <p>If you would like to bring your own IO implementation you can define an implementation for a custom type</p>
 
 <div class="example-wrap"><pre class="rust rust-example-rendered">
-<span class="kw">use</span> <span class="ident">tiny_dynamo</span>::{<span class="ident">Request</span>, <span class="ident">Requests</span>};
+<span class="kw">use</span> <span class="ident">tiny_dynamo</span>::{<span class="ident">Request</span>, <span class="ident">Transport</span>};
 <span class="kw">use</span> <span class="ident">std::error::Error</span>;
 
 <span class="kw">struct</span> <span class="ident">CustomIO</span>;
 
-<span class="kw">impl</span> <span class="ident">Requests</span> <span class="kw">for</span> <span class="ident">CustomIO</span> {
+<span class="kw">impl</span> <span class="ident">Transport</span> <span class="kw">for</span> <span class="ident">CustomIO</span> {
   <span class="kw">fn</span> <span class="ident">send</span>(<span class="kw-2">&amp;</span><span class="self">self</span>, <span class="ident">signed</span>: <span class="ident">Request</span>) <span class="op">-</span><span class="op">&gt;</span> <span class="prelude-ty">Result</span><span class="op">&lt;</span>(<span class="ident">u16</span>, <span class="ident">String</span>), <span class="ident">Box</span><span class="op">&lt;</span><span class="kw">dyn</span> <span class="ident">Error</span><span class="op">&gt;</span><span class="op">&gt;</span> {
     <span class="prelude-val">Ok</span>(
       (<span class="number">200</span>,<span class="string">&quot;...&quot;</span>.<span class="ident">into</span>())
@@ -84,14 +84,14 @@ tiny_dynamo = { version = &quot;0.1&quot;, features = [&quot;fastly&quot;]}
 }</pre></div>
 <p>Doug Tangren (softprops) 2021</p>
 </div></details><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
-<table><tr class="module-item"><td><a class="struct" href="struct.Const.html" title="tiny_dynamo::Const struct">Const</a></td><td class="docblock-short"><p>Provides a <code>Requests</code> implementation for a constantized response.</p>
+<table><tr class="module-item"><td><a class="struct" href="struct.Const.html" title="tiny_dynamo::Const struct">Const</a></td><td class="docblock-short"><p>Provides a <code>Transport</code> implementation for a constantized response.</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.Credentials.html" title="tiny_dynamo::Credentials struct">Credentials</a></td><td class="docblock-short"><p>A set of AWS credentials to authenticate requests with</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.DB.html" title="tiny_dynamo::DB struct">DB</a></td><td class="docblock-short"><p>The central client interface applications will work with</p>
 </td></tr><tr class="module-item"><td><a class="struct" href="struct.TableInfo.html" title="tiny_dynamo::TableInfo struct">TableInfo</a></td><td class="docblock-short"><p>Information about your target AWS DynamoDB table</p>
 </td></tr></table><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
 <table><tr class="module-item"><td><a class="enum" href="enum.Region.html" title="tiny_dynamo::Region enum">Region</a></td><td class="docblock-short"><p>A list of AWS Regions supported by DynamoDB</p>
 </td></tr></table><h2 id="traits" class="section-header"><a href="#traits">Traits</a></h2>
-<table><tr class="module-item"><td><a class="trait" href="trait.Requests.html" title="tiny_dynamo::Requests trait">Requests</a></td><td class="docblock-short"><p>A trait to implement the behavior for sending requests, often your “IO” layer</p>
+<table><tr class="module-item"><td><a class="trait" href="trait.Transport.html" title="tiny_dynamo::Transport trait">Transport</a></td><td class="docblock-short"><p>A trait to implement the behavior for sending requests, often your “IO” layer</p>
 </td></tr></table><h2 id="types" class="section-header"><a href="#types">Type Definitions</a></h2>
 <table><tr class="module-item"><td><a class="type" href="type.Request.html" title="tiny_dynamo::Request type">Request</a></td><td class="docblock-short"><p>A type alias for <code>http::RequestVec&lt;u8&gt;</code></p>
 </td></tr></table></section><section id="search" class="content hidden"></section><div id="rustdoc-vars" data-root-path="../" data-current-crate="tiny_dynamo" data-search-index-js="../search-index.js" data-search-js="../search.js"></div><script src="../main.js"></script></body></html>
