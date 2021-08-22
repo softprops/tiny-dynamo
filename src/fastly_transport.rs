@@ -1,8 +1,8 @@
-use crate::{Request, Requests};
+use crate::{Request, Transport};
 use fastly::{Body, Request as FastlyRequest};
 use std::error::Error;
 
-/// Provides a `Requests` impl suitable for Fastly's Compute@Edge WASM
+/// Provides a `Transport` impl suitable for Fastly's Compute@Edge WASM
 /// runtime
 pub struct Fastly {
     backend: String,
@@ -17,7 +17,7 @@ impl Fastly {
     }
 }
 
-impl Requests for Fastly {
+impl Transport for Fastly {
     fn send(
         &self,
         signed: Request,

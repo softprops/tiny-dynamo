@@ -1,5 +1,5 @@
 use std::{env, error::Error};
-use tiny_dynamo::{reqwest_requests::Reqwest, Credentials, TableInfo, DB};
+use tiny_dynamo::{reqwest_transport::Reqwest, Credentials, TableInfo, DB};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // docker run -p 8000:8000 amazon/dynamodb-local

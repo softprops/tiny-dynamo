@@ -1,4 +1,4 @@
-use crate::{Request, Requests};
+use crate::{Request, Transport};
 use reqwest::blocking::Client;
 use std::error::Error;
 
@@ -20,7 +20,7 @@ impl Reqwest {
     }
 }
 
-impl Requests for Reqwest {
+impl Transport for Reqwest {
     fn send(
         &self,
         signed: Request,

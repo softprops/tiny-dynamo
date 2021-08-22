@@ -1,9 +1,9 @@
 #![doc = include_str!("../README.md")]
 #[cfg(feature = "fastly")]
-pub mod fastly_requests;
+pub mod fastly_transport;
 mod region;
 #[cfg(feature = "reqwest")]
-pub mod reqwest_requests;
+pub mod reqwest_transport;
 
 use chrono::{DateTime, Utc};
 use hmac::{Hmac, Mac, NewMac};
@@ -79,7 +79,7 @@ impl TableInfo {
 }
 
 /// A trait to implement the behavior for sending requests, often your "IO" layer
-pub trait Requests {
+pub trait Transport {
     /// Accepts a signed `http::Request<Vec<u8>>` and returns a tuple
     /// representing a response's HTTP status code and body
     fn send(
@@ -135,7 +135,7 @@ impl Error for StrErr {}
 ///
 /// ```rust ,no_run
 /// # use std::{env, error::Error};
-/// # use tiny_dynamo::{reqwest_requests::Reqwest, Credentials, TableInfo, DB};
+/// # use tiny_dynamo::{reqwest_transport::Reqwest, Credentials, TableInfo, DB};
 /// # fn main() -> Result<(), Box<dyn Error>> {
 ///let db = DB::new(
 ///    Credentials::new(
@@ -157,7 +157,7 @@ impl Error for StrErr {}
 pub struct DB {
     credentials: Credentials,
     table_info: TableInfo,
-    requests: Box<dyn Requests>,
+    transport: Box<dyn Transport>,
 }
 
 impl DB {
@@ -165,12 +165,12 @@ impl DB {
     pub fn new(
         credentials: Credentials,
         table_info: TableInfo,
-        requests: impl Requests + 'static,
+        transport: impl Transport + 'static,
     ) -> Self {
         Self {
             credentials,
             table_info,
-            requests: Box::new(requests),
+            transport: Box::new(transport),
         }
     }
 
@@ -180,7 +180,7 @@ impl DB {
         key: impl AsRef<str>,
     ) -> Result<Option<String>, Box<dyn Error>> {
         let TableInfo { value_name, .. } = &self.table_info;
-        match self.requests.send(self.get_item_req(key)?)? {
+        match self.transport.send(self.get_item_req(key)?)? {
             (200, body) => Ok(serde_json::from_str::<GetItemOutput>(&body)?
                 .item
                 .get(value_name)
@@ -198,7 +198,7 @@ impl DB {
         key: impl AsRef<str>,
         value: impl AsRef<str>,
     ) -> Result<(), Box<dyn Error>> {
-        match self.requests.send(self.put_item_req(key, value)?)? {
+        match self.transport.send(self.put_item_req(key, value)?)? {
             (200, _) => Ok(()),
             _ => Ok(()), // fixme: communicate error
         }
@@ -438,10 +438,10 @@ impl DB {
     }
 }
 
-/// Provides a `Requests` implementation for a constantized response.
+/// Provides a `Transport` implementation for a constantized response.
 pub struct Const(pub u16, pub String);
 
-impl Requests for Const {
+impl Transport for Const {
     fn send(
         &self,
         _: Request,
