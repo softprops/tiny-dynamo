@@ -62,7 +62,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     for region in &regions {
         buf.push_str("      Region::");
         buf.push_str(&region.variant);
-        buf.push_str(" => \"dynamodb.");
+        buf.push_str(" => \"https://dynamodb.");
         buf.push_str(&region.id);
         buf.push_str(".amazonaws.com\",\n");
     }
