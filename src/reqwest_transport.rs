@@ -31,6 +31,6 @@ impl Transport for Reqwest {
             .headers(signed.headers().clone())
             .body(signed.body().clone())
             .send()?;
-        dbg!(Ok((resp.status().as_u16(), resp.text()?)))
+        Ok((resp.status().as_u16(), resp.text()?))
     }
 }
