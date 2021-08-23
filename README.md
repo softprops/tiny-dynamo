@@ -73,9 +73,11 @@ You can think of the DynamoDB API in terms of two planes: The _data_ plane*catio
 
 ### Sans I/O
 
-Tiny Dynamo takes a [sans I/O](https://sans-io.readthedocs.io/) library approach. It defines a `Transport` trait which allows for any I/O library to implement how requests are transfered over the wire by provides none without an implicit feature toggled on
+Tiny Dynamo takes a [sans I/O](https://sans-io.readthedocs.io/) library approach. It defines a `Transport` trait which allows for any I/O library to implement how requests are transfered over the wire by provides none without an explict cargo feature toggled on
 
-#### Reqwest
+Below are the current available cargo features
+
+#### `reqwest`
 
 the `reqwest` feature provides a `reqwest_transport::Reqwest` backend for sending requests, currently using a blocking client. An async feature is planned for the future
 
@@ -84,7 +86,7 @@ the `reqwest` feature provides a `reqwest_transport::Reqwest` backend for sendin
 tiny_dynamo = { version = "0.1", features = ["reqwest"]}
 ```
 
-#### Fastly
+#### `fastly`
 
 The `fastly` feature provides a `fastly_transport::Fastly` backend for sending requests suitable for Fastlys Compute@Edge platform
 
