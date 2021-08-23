@@ -22,7 +22,7 @@ To install tiny dynamo add the following to your `Cargo.toml` file.
 
 ```toml
 [dependencies]
-tiny_dynamo = "0.1"
+tiny-dynamo = "0.1"
 ```
 
 ### Tiny what now?
@@ -92,7 +92,7 @@ the `reqwest` feature provides a `reqwest_transport::Reqwest` backend for sendin
 
 ```toml
 [dependencies]
-tiny_dynamo = { version = "0.1", features = ["reqwest"]}
+tiny-dynamo = { version = "0.1", features = ["reqwest"]}
 ```
 
 #### `fastly`
@@ -101,7 +101,7 @@ The `fastly` feature provides a `fastly_transport::Fastly` backend for sending r
 
 ```toml
 [dependencies]
-tiny_dynamo = { version = "0.1", features = ["fastly"]}
+tiny-dynamo = { version = "0.1", features = ["fastly"]}
 ```
 
 ### BYOIO
