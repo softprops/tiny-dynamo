@@ -164,9 +164,9 @@ impl Error for StrErr {}
 ///        env::var("AWS_SECRET_ACCESS_KEY")?,
 ///    ),
 ///    Table::new(
+///        "table-name",
 ///        "key-attr-name",
 ///        "value-attr-name",
-///        "table-name",
 ///        "us-east-1".parse()?,
 ///        None
 ///    ),

@@ -46,7 +46,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             env::var("AWS_SECRET_ACCESS_KEY")?,
         ),
         Table::new(
-            "table-name"
+            "table-name",
             "key-attr-name",
             "value-attr-name",
             "us-east-1".parse()?,
