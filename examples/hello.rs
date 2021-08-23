@@ -11,15 +11,25 @@ fn main() -> Result<(), Box<dyn Error>> {
             env::var("AWS_SECRET_ACCESS_KEY")?,
         ),
         Table::new(
-            "test",
-            "key",
-            "value",
-            "us-east-1".parse()?,
+            env::var("TABLE_NAME").ok().as_deref().unwrap_or("test"),
+            env::var("KEY_NAME").ok().as_deref().unwrap_or("key"),
+            env::var("VALUE_NAME").ok().as_deref().unwrap_or("value"),
+            env::var("AWS_REGION")
+                .ok()
+                .as_deref()
+                .unwrap_or("us-east-1")
+                .parse()?,
             Some("http://localhost:8000".into()),
         ),
         Reqwest::new(),
     );
-    println!("{:#?}", db.set("foo", "bar")?);
-    println!("{:#?}", db.get("ffoo")?);
+    println!(
+        "{:#?}",
+        db.set(
+            "https://www.meetup.com/cities/us/ca/",
+            "https://www.meetup.com/find/us--california/"
+        )?
+    );
+    println!("{:#?}", db.get("https://www.meetup.com/cities/us/ca/")?);
     Ok(())
 }
