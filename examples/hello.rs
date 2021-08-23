@@ -23,13 +23,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         ),
         Reqwest::new(),
     );
-    println!(
-        "{:#?}",
-        db.set(
-            "https://www.meetup.com/cities/us/ca/",
-            "https://www.meetup.com/find/us--california/"
-        )?
-    );
-    println!("{:#?}", db.get("https://www.meetup.com/cities/us/ca/")?);
+    println!("{:#?}", db.set("foo", "bar")?);
+    println!("{:#?}", db.get("foo")?);
     Ok(())
 }
