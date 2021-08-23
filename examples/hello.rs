@@ -1,5 +1,5 @@
 use std::{env, error::Error};
-use tiny_dynamo::{reqwest_transport::Reqwest, Credentials, TableInfo, DB};
+use tiny_dynamo::{reqwest_transport::Reqwest, Credentials, Table, DB};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // docker run -p 8000:8000 amazon/dynamodb-local
@@ -10,16 +10,16 @@ fn main() -> Result<(), Box<dyn Error>> {
             env::var("AWS_ACCESS_KEY_ID")?,
             env::var("AWS_SECRET_ACCESS_KEY")?,
         ),
-        TableInfo::new(
+        Table::new(
+            "test",
             "key",
             "value",
-            "test",
             "us-east-1".parse()?,
             Some("http://localhost:8000".into()),
         ),
         Reqwest::new(),
     );
     println!("{:#?}", db.set("foo", "bar")?);
-    println!("{:#?}", db.get("foo")?);
+    println!("{:#?}", db.get("ffoo")?);
     Ok(())
 }

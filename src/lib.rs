@@ -45,7 +45,7 @@ impl Credentials {
 
 /// Information about your target AWS DynamoDB table
 #[non_exhaustive]
-pub struct TableInfo {
+pub struct Table {
     /// The name of your DynamoDB
     pub table_name: String,
     /// The name of the attribute that will store your key
@@ -60,7 +60,7 @@ pub struct TableInfo {
     pub endpoint: Option<String>,
 }
 
-impl TableInfo {
+impl Table {
     pub fn new(
         table_name: impl AsRef<str>,
         key_name: impl AsRef<str>,
@@ -115,6 +115,27 @@ struct GetItemOutput {
     item: HashMap<String, Attr>,
 }
 
+#[derive(Deserialize, Debug)]
+#[serde(rename_all = "PascalCase")]
+struct AWSError {
+    #[serde(alias = "__type")]
+    __type: String,
+    message: String,
+}
+
+impl Display for AWSError {
+    fn fmt(
+        &self,
+        f: &mut std::fmt::Formatter<'_>,
+    ) -> std::fmt::Result {
+        f.write_str(self.__type.as_str())?;
+        f.write_str(": ")?;
+        f.write_str(self.message.as_str())
+    }
+}
+
+impl Error for AWSError {}
+
 #[derive(Debug)]
 struct StrErr(String);
 
@@ -135,14 +156,14 @@ impl Error for StrErr {}
 ///
 /// ```rust ,no_run
 /// # use std::{env, error::Error};
-/// # use tiny_dynamo::{reqwest_transport::Reqwest, Credentials, TableInfo, DB};
+/// # use tiny_dynamo::{reqwest_transport::Reqwest, Credentials, Table, DB};
 /// # fn main() -> Result<(), Box<dyn Error>> {
 ///let db = DB::new(
 ///    Credentials::new(
 ///        env::var("AWS_ACCESS_KEY_ID")?,
 ///        env::var("AWS_SECRET_ACCESS_KEY")?,
 ///    ),
-///    TableInfo::new(
+///    Table::new(
 ///        "key-attr-name",
 ///        "value-attr-name",
 ///        "table-name",
@@ -156,7 +177,7 @@ impl Error for StrErr {}
 /// ```
 pub struct DB {
     credentials: Credentials,
-    table_info: TableInfo,
+    table_info: Table,
     transport: Box<dyn Transport>,
 }
 
@@ -164,7 +185,7 @@ impl DB {
     /// Returns a new instance of a DB
     pub fn new(
         credentials: Credentials,
-        table_info: TableInfo,
+        table_info: Table,
         transport: impl Transport + 'static,
     ) -> Self {
         Self {
@@ -179,8 +200,9 @@ impl DB {
         &self,
         key: impl AsRef<str>,
     ) -> Result<Option<String>, Box<dyn Error>> {
-        let TableInfo { value_name, .. } = &self.table_info;
+        let Table { value_name, .. } = &self.table_info;
         match self.transport.send(self.get_item_req(key)?)? {
+            (200, body) if body.as_str() == "{}" => Ok(None), // not found
             (200, body) => Ok(serde_json::from_str::<GetItemOutput>(&body)?
                 .item
                 .get(value_name)
@@ -188,7 +210,7 @@ impl DB {
                 .find_map(|attr| match attr {
                     Attr::S(v) => Some(v.clone()),
                 })),
-            _ => Ok(None),
+            (_, body) => Err(Box::new(serde_json::from_str::<AWSError>(&body)?)),
         }
     }
 
@@ -200,7 +222,7 @@ impl DB {
     ) -> Result<(), Box<dyn Error>> {
         match self.transport.send(self.put_item_req(key, value)?)? {
             (200, _) => Ok(()),
-            _ => Ok(()), // fixme: communicate error
+            (_, body) => Err(Box::new(serde_json::from_str::<AWSError>(&body)?)),
         }
     }
 
@@ -212,7 +234,7 @@ impl DB {
     ) -> Result<Request, Box<dyn Error>> {
         // https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_PutItem.html
         let req = http::Request::builder();
-        let TableInfo {
+        let Table {
             table_name,
             key_name,
             value_name,
@@ -247,7 +269,7 @@ impl DB {
     ) -> Result<Request, Box<dyn Error>> {
         // https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_GetItem.html
         let req = http::Request::builder();
-        let TableInfo {
+        let Table {
             table_name,
             key_name,
             value_name,

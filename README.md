@@ -28,7 +28,7 @@ Tiny Dynamo aims to leverge the useful parts of DynamoDB, the performance and sc
 
 ```rust ,no_run
 use std::{env, error::Error};
-use tiny_dynamo::{reqwest_transport::Reqwest, Credentials, TableInfo, DB};
+use tiny_dynamo::{reqwest_transport::Reqwest, Credentials, Table, DB};
 
 fn main() -> Result<(), Box<dyn Error>> {
     let db = DB::new(
@@ -36,10 +36,10 @@ fn main() -> Result<(), Box<dyn Error>> {
             env::var("AWS_ACCESS_KEY_ID")?,
             env::var("AWS_SECRET_ACCESS_KEY")?,
         ),
-        TableInfo::new(
+        Table::new(
+            "table-name"
             "key-attr-name",
             "value-attr-name",
-            "table-name",
             "us-east-1".parse()?,
             None
         ),

@@ -1,5 +1,5 @@
 use criterion::{black_box, criterion_group, criterion_main, Criterion};
-use tiny_dynamo::{Const, Credentials, Request, TableInfo, DB};
+use tiny_dynamo::{Const, Credentials, Request, Table, DB};
 
 fn get_item(db: DB) -> Result<Request, Box<dyn std::error::Error>> {
     db.get_item_req("test")
@@ -14,10 +14,10 @@ fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| {
             get_item(black_box(DB::new(
                 Credentials::new("test", "test"),
-                TableInfo::new(
+                Table::new(
+                    "test",
                     "key",
                     "value",
-                    "test",
                     "us-east-1".parse()?,
                     Some("http://localhost:8000".into()),
                 ),
@@ -30,10 +30,10 @@ fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| {
             put_item(black_box(DB::new(
                 Credentials::new("test", "test"),
-                TableInfo::new(
+                Table::new(
+                    "test",
                     "key",
                     "value",
-                    "test",
                     "us-east-1".parse()?,
                     Some("http://localhost:8000".into()),
                 ),
