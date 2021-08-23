@@ -16,6 +16,15 @@
 	</a>
 </div>
 
+### Install
+
+To install tiny dynamo add the following to your `Cargo.toml` file.
+
+```toml
+[dependencies]
+tiny_dynamo = "0.1"
+```
+
 ### Tiny what now?
 
 > Amazon DynamoDB is a key-value and document database that delivers single-digit millisecond performance at any scale.
