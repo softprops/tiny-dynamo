@@ -2,6 +2,14 @@
 name = "tiny-dynamo"
 version = "0.1.0"
 edition = "2018"
+description = " A tinier, simpler, key-value focused interface for AWS DynamoDB"
+license = "MIT"
+keywords = ["aws", "dynamodb"]
+readme = "README.md"
+documentation = "https://docs.rs/tiny-dynamo"
+homepage = "https://github.com/softprops/tiny-dynamo"
+repository = "https://github.com/softprops/tiny-dynamo"
+categories = ["database"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
