@@ -12,8 +12,8 @@
 //!
 //! <div align="center">
 //!   <a href="https://github.com/softprops/tiny-dynamo/actions">
-//! 		<img src="https://github.com/softprops/tiny-dynamo/workflows/Main/badge.svg"/>
-//! 	</a>
+//!     <img src="https://github.com/softprops/tiny-dynamo/workflows/Main/badge.svg"/>
+//!    </a>
 //! </div>
 //!
 //! ### Install
@@ -113,6 +113,7 @@
 //! use std::error::Error;
 //!
 //! struct CustomIO;
+
 //!
 //! impl Transport for CustomIO {
 //!   fn send(&self, signed: Request) -> Result<(u16, String), Box<dyn Error>> {
